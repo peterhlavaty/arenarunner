@@ -1,0 +1,5 @@
+endpoints\Maps.class
+endpoints\Register.class
+db\DB.class
+db\DB$1.class
+endpoints\Leaderboard.class
