@@ -4,9 +4,7 @@ import {SceneName} from "../enums/SceneName";
 import {HttpClient} from "@angular/common/http";
 
 
-@Injectable({
-  providedIn: "root"
-})
+@Injectable()
 export class PauseScene extends Scene{
 
   public constructor(private http: HttpClient) {

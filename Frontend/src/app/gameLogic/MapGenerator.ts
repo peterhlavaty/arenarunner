@@ -6,33 +6,36 @@ import {Canons} from "../mapFields/Canons";
 
 export class MapGenerator {
 
-  private static typemap = new Map([
-    [TextureName.BORDER, MapGenerator.addBorder],
-    [TextureName.WALL, MapGenerator.addWall],
+  private readonly typemap = new Map([
+    [TextureName.BORDER, this.addBorder],
+    [TextureName.WALL, this.addWall],
     [TextureName.EMPTY, ()=>{}],
-    [TextureName.STAR, MapGenerator.addStar],
-    [TextureName.CANON, MapGenerator.addCanon],
+    [TextureName.STAR, this.addStar],
+    [TextureName.CANON, this.addCanon],
   ]);
 
-  private static scene;
+  private scene;
 
-  public static generate(scene: MainScene):void{
+  public constructor(scene: MainScene){
+    this.scene = scene;
+  }
+
+  public generate():void{
 
     console.log('generate');
-    MapGenerator.scene = scene;
-    scene.map.forEach((row, rowIndex)=>{
+    this.scene.map.forEach((row, rowIndex)=>{
       row.forEach((column, columnIndex)=>{
         column.forEach((mapField, index)=>{
-          MapGenerator.typemap.get(mapField.type)(mapField, rowIndex, columnIndex);
+          this.typemap.get(mapField.type).call(this, mapField, rowIndex, columnIndex);
         })
       })
     });
     //add colliders
-    scene.stars.setCollider();
+    this.scene.stars.setCollider();
     // this.borders.refresh();
-    scene.borders.setCollider();
-    scene.canons.setCollider();
-    scene.walls.setCollider();
+    this.scene.borders.setCollider();
+    this.scene.canons.setCollider();
+    this.scene.walls.setCollider();
     // this.physics.collide(this.ship, this.borders);
 
     // MapGenerator.walls(scene);
@@ -65,34 +68,35 @@ export class MapGenerator {
   //   scene.borders = scene.physics.add.staticGroup(borders);
   // }
 
-  private static addBorder(mapField:MapField, row:number, column:number):void{
-    const border = MapGenerator.addStaticSprite(row, column, mapField.type);
-    border.setSize(MapGenerator.scene.gridSize, MapGenerator.scene.gridSize);
-    border.setScale(MapGenerator.scene.gridSize / border.width);
-    MapGenerator.scene.borders.add(border);
+  private addBorder(mapField:MapField, row:number, column:number):void{
+    const border = this.addStaticSprite(row, column, mapField.type);
+    border.setSize(this.scene.gridSize, this.scene.gridSize);
+    border.setScale(this.scene.gridSize / border.width);
+    this.scene.borders.add(border);
     // borders.push(this.scene.physics.add.staticSprite(this.scene.width - this.scene.gridSize / 2, this.scene.gridSize / 2, 'wall'));
   }
 
-  private static addWall(mapField:MapField, row:number, column:number):void{
-    const wall = MapGenerator.addStaticSprite(row, column, mapField.type);
-    wall.setSize(MapGenerator.scene.gridSize, MapGenerator.scene.gridSize);
-    wall.setScale(MapGenerator.scene.gridSize / wall.width);
-    MapGenerator.scene.walls.add(wall);
+  private addWall(mapField:MapField, row:number, column:number):void{
+    console.log('adding wall');
+    const wall = this.addStaticSprite(row, column, mapField.type);
+    wall.setSize(this.scene.gridSize, this.scene.gridSize);
+    wall.setScale(this.scene.gridSize / wall.width);
+    this.scene.walls.add(wall);
     // borders.push(this.scene.physics.add.staticSprite(this.scene.width - this.scene.gridSize / 2, this.scene.gridSize / 2, 'wall'));
   }
 
-  private static addStar(mapField:MapField, row:number, column:number):void{
-    const star = MapGenerator.addSprite(row, column, mapField.type);
-    star.setScale(MapGenerator.scene.gridSize/star.width);
-    MapGenerator.scene.stars.add(star);
-    MapGenerator.scene.score.starSum++;
+  private addStar(mapField:MapField, row:number, column:number):void{
+    const star = this.addSprite(row, column, mapField.type);
+    star.setScale(this.scene.gridSize/star.width);
+    this.scene.stars.add(star);
+    this.scene.score.starSum++;
   }
 
-  private static addCanon(mapField:MapField, row:number, column:number):void{
-    const canon:Sprite = MapGenerator.addSprite(row, column, mapField.type);
-    const canonSizeMod = MapGenerator.scene.gridSize / canon.width;
-    const sizeX = MapGenerator.scene.gridsX*MapGenerator.scene.gridSize*(1/canonSizeMod);
-    const sizeY = MapGenerator.scene.gridsY*MapGenerator.scene.gridSize*(1/canonSizeMod);
+  private addCanon(mapField:MapField, row:number, column:number):void{
+    const canon:Sprite = this.addSprite(row, column, mapField.type);
+    const canonSizeMod = this.scene.gridSize / canon.width;
+    const sizeX = this.scene.gridsX*this.scene.gridSize*(1/canonSizeMod);
+    const sizeY = this.scene.gridsY*this.scene.gridSize*(1/canonSizeMod);
     canon.setSize(sizeX*Math.abs(Canons.colliders.get(mapField.angle).X)+1*Math.abs(Canons.colliders.get(mapField.angle).Y),
       sizeY*Math.abs(Canons.colliders.get(mapField.angle).Y)+1*Math.abs(Canons.colliders.get(mapField.angle).X));
     canon.body.setOffset(canon.body.offset.x+(sizeX/2)*Canons.colliders.get(mapField.angle).X,
@@ -107,18 +111,18 @@ export class MapGenerator {
     // canon.body.setOffset(0,0);
     canon.setScale(canonSizeMod);
     canon.setAngle(mapField.angle);
-    MapGenerator.scene.canons.add(canon);
+    this.scene.canons.add(canon);
     canon.setBounce(1);
     canon.setVelocityX(Math.abs(Canons.colliders.get(mapField.angle).Y)*Canons.speed);
     canon.setVelocityY(Math.abs(Canons.colliders.get(mapField.angle).X)*Canons.speed);
     canon.setDepth(10);
   }
 
-  private static addSprite(row:number, column:number, type:string):Sprite{
-    return MapGenerator.scene.physics.add.sprite(row*MapGenerator.scene.gridSize+MapGenerator.scene.gridSize/2, column*MapGenerator.scene.gridSize+MapGenerator.scene.gridSize/2, type);
+  private addSprite(row:number, column:number, type:string):Sprite{
+    return this.scene.physics.add.sprite(row*this.scene.gridSize+this.scene.gridSize/2, column*this.scene.gridSize+this.scene.gridSize/2, type);
   }
 
-  private static addStaticSprite(row:number, column:number, type:string):Sprite{
-    return MapGenerator.scene.physics.add.staticSprite(row*MapGenerator.scene.gridSize+MapGenerator.scene.gridSize/2, column*MapGenerator.scene.gridSize+MapGenerator.scene.gridSize/2, type);
+  private addStaticSprite(row:number, column:number, type:string):Sprite{
+    return this.scene.physics.add.staticSprite(row*this.scene.gridSize+this.scene.gridSize/2, column*this.scene.gridSize+this.scene.gridSize/2, type);
   }
 }

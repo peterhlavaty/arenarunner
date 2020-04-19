@@ -5,7 +5,7 @@ import TimerEvent = Phaser.Time.TimerEvent;
 import Text = Phaser.GameObjects.Text;
 import {Score} from "./Score";
 import {MapGenerator} from "./MapGenerator";
-import {HostListener, Injectable} from "@angular/core";
+import {HostListener, Injectable, NgZone} from "@angular/core";
 import {HttpClient} from "@angular/common/http";
 import Scene = Phaser.Scene;
 import {MapField} from "../mapFields/MapField";
@@ -18,29 +18,30 @@ import {Walls} from "../mapFields/Walls";
 import {Bullets} from "../mapFields/Bullets";
 import {SceneName} from "../enums/SceneName";
 import {Result} from "./data/Result";
+import {Constants} from "./data/Constants";
+import {TextButton} from "./components/TextButton";
+import {Router} from "@angular/router";
 
-@Injectable({
-  providedIn: "root"
-})
+@Injectable()
 export class MainScene extends Scene {
 
   public windowWidth:number;
   public windowHeight:number;
   public gridSize = 50;
-  public width = 800;
-  public height = 600;
+  public width = Constants.WIDTH;
+  public height = Constants.HEIGHT;
   public gridsX = this.width/this.gridSize;
   public gridsY = this.height/this.gridSize;
   private ts: TileSprite;
   private myInput: Input;
   private timer: TimerEvent;
   private timerText: Text;
-  private timerTime = 0;
+  private timerTime: number;
 
 
   public map: MapField[][][];
 
-  public score = new Score();
+  public score: Score;
   public scoreText: Text;
   public livesText: Text;
   public ship: Sprite;
@@ -49,12 +50,13 @@ export class MainScene extends Scene {
   public stars: Stars;
   public canons: Canons;
   public bullets: Bullets;
+  public homeButton: TextButton;
 
 
-  public constructor(private http: HttpClient) {
+  public constructor(private ngZone: NgZone, private http: HttpClient, private router: Router) {
     super({ key: SceneName.MAIN });
     this.onResize();
-    this.http.get("www.random.sk");
+    // this.http.get("www.random.sk");
   }
 
   init(map:MapField[][][]){
@@ -74,12 +76,17 @@ export class MainScene extends Scene {
     this.ship.setScale(this.gridSize/this.ship.width);
     //texts
     //score
+    this.score = new Score();
     this.scoreText = this.add.text(this.width+this.gridSize, this.height/2-this.gridSize, 'Stars: ');
     //time
+    this.timerTime = 0;
     this.timerText = this.add.text(this.width+this.gridSize, this.height/2, 'Time: ' + this.timerTime);
     this.timer = this.time.addEvent({ delay: 1000, callback: this.incrementTimer, callbackScope: this, repeat: Infinity });
     //lives
     this.livesText = this.add.text(this.width+this.gridSize, this.height/2+this.gridSize, 'Lives: ' + this.score.lives);
+    //home button
+    this.homeButton = new TextButton(this, this.width+this.gridSize, this.height-this.gridSize, 'Back To Homepage', { fill: '#0f0'}, () => this.goHome());
+    this.add.existing(this.homeButton);
 
     //game objects
     this.stars = new Stars(this);
@@ -89,7 +96,8 @@ export class MainScene extends Scene {
     this.bullets = new Bullets(this);
 
     //generate map
-    MapGenerator.generate(this);
+    let mapGenerator:MapGenerator = new MapGenerator(this);
+    mapGenerator.generate();
 
     // this.borders = this.physics.add.staticGroup({
     //   key: 'border',
@@ -114,9 +122,7 @@ export class MainScene extends Scene {
     // console.log(this.myInput.test());
     this.myInput.defineKeys();
 
-    this.scene.pause();
-    this.scene.launch(SceneName.PAUSE);
-    this.scene.bringToTop(SceneName.PAUSE)
+    this.pause();
     // this.scene.pause();
   }
 
@@ -129,7 +135,9 @@ export class MainScene extends Scene {
     this.load.image(TextureName.BORDER, 'assets/Border.png');
     this.load.image(TextureName.WALL, 'assets/Wall.png');
     this.load.image(TextureName.BULLET, 'assets/Bullet.png');
-  }  update() {
+  }
+
+  update() {
     this.myInput.move();
   }
 
@@ -142,6 +150,20 @@ export class MainScene extends Scene {
   public loseLife(){
     this.score.lives--;
     this.livesText.setText('Lives: ' + this.score.lives);
+  }
+
+  private pause(){
+    this.scene.pause();
+    this.scene.launch(SceneName.PAUSE);
+    this.scene.bringToTop(SceneName.PAUSE);
+  }
+
+  private goHome(){
+    this.sys.game.destroy(true);
+    this.game.destroy(true);
+    // this.pause();
+    this.ngZone.run(()=>{this.router.navigate(['/home']);});
+    // this.router.navigate(['/home']);
   }
 
   private incrementTimer(){

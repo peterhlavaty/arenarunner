@@ -7,9 +7,7 @@ import Text = Phaser.GameObjects.Text;
 import {Score} from "./Score";
 import {Constants} from "./data/Constants";
 
-@Injectable({
-  providedIn: "root"
-})
+@Injectable()
 export class ResultsScene extends Scene{
 
   private scoreText: Text;

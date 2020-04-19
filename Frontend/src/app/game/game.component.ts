@@ -10,7 +10,8 @@ import {Constants} from "../gameLogic/data/Constants";
 @Component({
   selector: 'app-game',
   templateUrl: './game.component.html',
-  styleUrls: ['./game.component.css']
+  styleUrls: ['./game.component.css'],
+  providers: [MainScene, PauseScene, InitScene, ResultsScene]
 })
 export class GameComponent implements OnInit {
 
@@ -22,14 +23,18 @@ export class GameComponent implements OnInit {
     this._ngZone.runOutsideAngular(() => {
       this.config = {
         type: Phaser.AUTO,
-        height: Constants.HEIGHT,
-        width: Constants.WIDTH+200,
+        scale: {
+          parent: 'canvas-wrapper',
+          mode: Phaser.Scale.FIT,
+          autoCenter: Phaser.Scale.CENTER_BOTH,
+          width: Constants.WIDTH+200,
+          height: Constants.HEIGHT,
+        },
         scene: [ initScene, mainScene, pauseScene, resultsScene],
-        parent: 'gameContainer',
         physics: {
           default: 'arcade',
           arcade: {
-            debug: true,
+            // debug: true,
             gravity: { y: 0 }
           }
         }
