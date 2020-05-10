@@ -1,11 +1,12 @@
 import {Injectable} from "@angular/core";
 import Scene = Phaser.Scene;
-import {HttpClient} from "@angular/common/http";
 import {SceneName} from "../enums/SceneName";
 import {Result} from "./data/Result";
 import Text = Phaser.GameObjects.Text;
 import {Score} from "./Score";
 import {Constants} from "./data/Constants";
+import {ScoreService} from "../score.service";
+import {green} from "color-name";
 
 @Injectable()
 export class ResultsScene extends Scene{
@@ -14,7 +15,7 @@ export class ResultsScene extends Scene{
   private resultText: Text;
   private result: Result;
 
-  public constructor(private http: HttpClient) {
+  public constructor(public scoreService: ScoreService) {
     super({ key: SceneName.RESULTS});
   }
 
@@ -23,8 +24,11 @@ export class ResultsScene extends Scene{
   }
 
   create(){
-    this.resultText = this.add.text(Constants.WIDTH/2, Constants.HEIGHT/2, this.result.score.success?Score.SUCCESS_TEXT: Score.FAIL_TEXT);
-    this.scoreText = this.add.text(Constants.WIDTH/2,Constants.HEIGHT/2 + Constants.HEIGHT/7, 'Score: ' + this.result.score.getScore()).setFontSize(30);
+    this.resultText = this.add.text(Constants.WIDTH/2, Constants.HEIGHT/2, this.result.score.success?Score.SUCCESS_TEXT: Score.FAIL_TEXT).setFontSize(50)
+      .setColor(this.result.score.success?'green':'red');
+    const score = this.result.score.getScore();
+    this.scoreText = this.add.text(Constants.WIDTH/2,Constants.HEIGHT/2 + Constants.HEIGHT/7, 'Score: ' + score).setFontSize(30);
+    this.scoreService.saveScore(score);
 
     this.input.once('pointerdown', function () {
 

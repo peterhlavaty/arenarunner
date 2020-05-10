@@ -9,27 +9,27 @@ export class AuthService {
 
   constructor(private http: HttpClient) { }
 
+  public name = '';
+
   public login(userInfo: User){
-    localStorage.setItem('ACCESS_TOKEN', "access_token");
+    return this.http.post('/api/login', {
+      'name': userInfo.nick,
+      'password': userInfo.password,
+    }, {responseType: 'text'})
   }
 
   public isLoggedIn(){
-    return localStorage.getItem('ACCESS_TOKEN') !== null;
-
+    return this.name.length > 0;
   }
 
   public logout(){
-    localStorage.removeItem('ACCESS_TOKEN');
+    this.name = '';
   }
 
   public register(userInfo: User) {
-    const params = new HttpParams()
-      .set('name', userInfo.nick)
-      .set('password', userInfo.password);
-    this.http.get('/api/register', {params: params})
-      .subscribe((result: any) =>
-        {console.log(result);}
-        // {this.leaderboard = result.score;}
-      )
+    return this.http.post('/api/register', {
+      'name': userInfo.nick,
+      'password': userInfo.password,
+    },{responseType: 'text'})
   }
 }

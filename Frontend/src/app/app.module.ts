@@ -18,6 +18,7 @@ import { RegistrationComponent } from './registration/registration.component';
 import {ReactiveFormsModule} from "@angular/forms";
 import { AboutComponent } from './about/about.component';
 import {NgbNavModule} from "@ng-bootstrap/ng-bootstrap";
+import { MapsComponent } from './maps/maps.component';
 
 @NgModule({
   declarations: [
@@ -27,7 +28,8 @@ import {NgbNavModule} from "@ng-bootstrap/ng-bootstrap";
     HomepageComponent,
     MenuComponent,
     RegistrationComponent,
-    AboutComponent
+    AboutComponent,
+    MapsComponent
   ],
   imports: [
     BrowserModule,

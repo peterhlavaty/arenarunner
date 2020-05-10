@@ -1,7 +1,5 @@
 import {MainScene} from "../gameLogic/MainScene";
 import Sprite = Phaser.Physics.Arcade.Sprite;
-import {SceneName} from "../enums/SceneName";
-import {Result} from "../gameLogic/data/Result";
 
 export class Bullets {
 
@@ -23,16 +21,23 @@ export class Bullets {
     bullet.destroy();
   }
 
-  private destroyShip(ship:Sprite, bullet:Sprite){
+  private async destroyShip(ship:Sprite, bullet:Sprite){
     // if(!this.dead){
       this.dead = true;
       this.scene.loseLife();
       if(this.scene.score.lives>0){
         bullet.destroy();
+        ship.tint = 0xff0000;
+        await this.delay(200);
+        ship.tint = 0xffffff;
       }
       else{
         this.scene.endGame(false);
       }
     // }
+  }
+
+  delay(ms: number) {
+    return new Promise( resolve => setTimeout(resolve, ms) );
   }
 }

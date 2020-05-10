@@ -1,6 +1,9 @@
 <ul class="topnav">
-  <li><a routerLink="/home">Home</a></li>
-  <li><a routerLink="/leaderboard">Leaderboard</a></li>
-  <li><a routerLink="/about">About</a></li>
-  <li class="right"><a routerLink="/login">Register/Login</a></li>
+  <li><a routerLink="/home" routerLinkActive="active">Home</a></li>
+  <li><a routerLink="/leaderboard" routerLinkActive="active">Leaderboard</a></li>
+  <li><a routerLink="/about" routerLinkActive="active">About</a></li>
+  <li class="right">
+    <a *ngIf="!authService.name" routerLink="/login" routerLinkActive="active">Register/Login</a>
+    <a *ngIf="authService.name" routerLink="/home" (click)="logout()" >Logout</a>
+  </li>
 </ul>

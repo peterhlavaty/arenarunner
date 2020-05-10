@@ -45,4 +45,8 @@ export class GameComponent implements OnInit {
       this.phaserGame = new Phaser.Game(this.config);
     });
   }
+
+  public getMainScene(){
+    return this.mainScene;
+  }
 }

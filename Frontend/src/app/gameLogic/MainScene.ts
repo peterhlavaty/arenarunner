@@ -84,9 +84,9 @@ export class MainScene extends Scene {
     this.timer = this.time.addEvent({ delay: 1000, callback: this.incrementTimer, callbackScope: this, repeat: Infinity });
     //lives
     this.livesText = this.add.text(this.width+this.gridSize, this.height/2+this.gridSize, 'Lives: ' + this.score.lives);
-    //home button
-    this.homeButton = new TextButton(this, this.width+this.gridSize, this.height-this.gridSize, 'Back To Homepage', { fill: '#0f0'}, () => this.goHome());
-    this.add.existing(this.homeButton);
+    // //home button
+    // this.homeButton = new TextButton(this, this.width+this.gridSize, this.height-this.gridSize, 'Back To Homepage', { fill: '#0f0'}, () => this.goHome());
+    // this.add.existing(this.homeButton);
 
     //game objects
     this.stars = new Stars(this);
@@ -144,7 +144,7 @@ export class MainScene extends Scene {
   public endGame(success: boolean):void{
     this.score.success = success;
     this.score.time = this.timerTime;
-    this.scene.start(SceneName.RESULTS, new Result(this.map, this.score));
+    this.scene.start(SceneName.RESULTS, new Result(this.score));
   }
 
   public loseLife(){
@@ -158,7 +158,7 @@ export class MainScene extends Scene {
     this.scene.bringToTop(SceneName.PAUSE);
   }
 
-  private goHome(){
+  public goHome(){
     this.sys.game.destroy(true);
     this.game.destroy(true);
     // this.pause();

@@ -16,8 +16,11 @@ export class RegistrationComponent implements OnInit {
   registerForm: FormGroup;
   isSubmitted  =  false;
   isSubmittedReg = false;
+  loginValidation = '';
+  registerValidation = '';
 
-  get formControls() { return this.loginForm.controls; }
+  get formControlsLogin() { return this.loginForm.controls; }
+  get formControlsRegister() { return this.registerForm.controls; }
 
   login(){
     console.log(this.loginForm.value);
@@ -25,18 +28,39 @@ export class RegistrationComponent implements OnInit {
     if(this.loginForm.invalid){
       return;
     }
-    this.authService.login(this.loginForm.value);
-    this.router.navigateByUrl('/admin');
+    this.authService.login(this.loginForm.value).subscribe((result: any) => {
+      if(result.includes('OK')){
+        this.authService.name = this.loginForm.value.nick;
+        this.router.navigateByUrl('/home');
+      }
+      else{
+        this.loginValidation = result;
+      }
+      console.log(result);
+    }
+    );
   }
 
   register() {
     this.isSubmittedReg = true;
-    this.authService.register(this.registerForm.value);
+    if(this.registerForm.invalid){
+      return;
+    }
+    this.authService.register(this.registerForm.value).subscribe((result: any) => {
+      if(result.includes('OK')){
+      this.authService.name = this.registerForm.value.nick;
+      this.router.navigateByUrl('/home');
+    }
+    else{
+      this.registerValidation = result;
+    }
+    console.log(result);
+    });
   }
 
   ngOnInit(): void {
     this.loginForm  =  this.formBuilder.group({
-      email: ['', Validators.required],
+      nick: ['', Validators.required],
       password: ['', Validators.required]
     });
 

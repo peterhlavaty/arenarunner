@@ -1,5 +1,8 @@
 endpoints\Maps.class
+db\DB$1.class
+endpoints\Login.class
 endpoints\Register.class
 db\DB.class
-db\DB$1.class
+endpoints\Score.class
+filters\Angular.class
 endpoints\Leaderboard.class
